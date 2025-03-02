@@ -1,0 +1,60 @@
+<!-- training_app/templates/training_app/group_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">{{ group.name }}</h1>
+            {% if is_coach %}
+            <a href="{% url 'add_training_plan' group.id %}" 
+               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Add Training Plan
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Group Members</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for member in group.members.all %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="font-medium">{{ member.get_full_name|default:member.username }}</p>
+                    <p class="text-gray-600 text-sm">Member since: {{ member.date_joined|date:"M d, Y" }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">Training Plans</h2>
+            {% for plan in training_plans %}
+            <div class="border-b last:border-b-0 py-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-lg font-medium">
+                            <a href="{% url 'training_plan_detail' plan.id %}" class="text-blue-600 hover:text-blue-800">
+                                {{ plan.title }}
+                            </a>
+                        </h3>
+                        <p class="text-gray-600">{{ plan.date|date:"F d, Y" }}</p>
+                    </div>
+                    {% if plan.plan_file %}
+                    <a href="{{ plan.plan_file.url }}" 
+                       class="text-blue-500 hover:text-blue-700"
+                       target="_blank">
+                        Download Plan
+                    </a>
+                    {% endif %}
+                </div>
+                <p class="text-gray-700 mt-2">{{ plan.description|truncatewords:50 }}</p>
+            </div>
+            {% empty %}
+            <p class="text-gray-600">No training plans available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

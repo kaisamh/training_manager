@@ -1,0 +1,83 @@
+<!-- training_app/templates/training_app/training_plan_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ training_plan.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white shadow rounded-lg p-6">
+            <div class="mb-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">{{ training_plan.title }}</h1>
+                    <p class="text-gray-600">{{ training_plan.date|date:"F d, Y" }}</p>
+                </div>
+                <p class="mt-4 text-gray-700">{{ training_plan.description }}</p>
+                {% if training_plan.plan_file %}
+                <div class="mt-4">
+                    <a href="{{ training_plan.plan_file.url }}" 
+                       class="inline-flex items-center text-blue-500 hover:text-blue-700"
+                       target="_blank">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download Training Plan
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if is_coach %}
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">Member Feedback</h2>
+                {% for member in training_plan.group.members.all %}
+                <div class="border rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-medium">{{ member.get_full_name|default:member.username }}</h3>
+                        {% if not feedbacks|dictsort:"member.id"|map:"member.id"|make_list|contains:member.id %}
+                        <a href="{% url 'add_feedback' training_plan.id member.id %}" 
+                           class="text-blue-500 hover:text-blue-700">
+                            Add Feedback
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    {% for feedback in feedbacks %}
+                    {% if feedback.member == member %}
+                    <div class="mt-3">
+                        <p class="font-medium text-gray-700">Feedback:</p>
+                        <p class="text-gray-600">{{ feedback.feedback }}</p>
+                        <p class="font-medium text-gray-700 mt-2">Individual Tasks:</p>
+                        <p class="text-gray-600">{{ feedback.individual_tasks }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold mb-4">Your Feedback</h2>
+                {% for feedback in feedbacks %}
+                {% if feedback.member == user %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="mb-4">
+                        <h3 class="font-medium text-gray-700">Feedback from Coach:</h3>
+                        <p class="mt-2">{{ feedback.feedback }}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-700">Individual Tasks:</h3>
+                        <p class="mt-2">{{ feedback.individual_tasks }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <p class="text-gray-600">No feedback has been provided yet.</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

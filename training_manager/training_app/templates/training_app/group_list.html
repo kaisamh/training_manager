@@ -1,0 +1,31 @@
+<!-- training_app/templates/training_app/group_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Training Groups{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Training Groups</h1>
+        {% if user.coached_groups.exists %}
+        <a href="{% url 'add_group' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Create New Group
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for group in groups %}
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-3">{{ group.name }}</h2>
+            <p class="text-gray-600 mb-2">Coach: {{ group.coach.get_full_name|default:group.coach.username }}</p>
+            <p class="text-gray-600 mb-4">Members: {{ group.members.count }}</p>
+            <a href="{% url 'group_detail' group.id %}" 
+               class="text-blue-500 hover:text-blue-700">View Details →</a>
+        </div>
+        {% empty %}
+        <p class="text-gray-600">No training groups available.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
